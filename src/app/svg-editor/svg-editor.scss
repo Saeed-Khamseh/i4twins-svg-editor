@@ -1,0 +1,22 @@
+.editor-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-height: 0;
+}
+
+.editor-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.editor-canvas {
+  min-width: 0;
+  min-height: 0;
+}
+
+.editor-sidebar {
+  min-height: 0;
+}

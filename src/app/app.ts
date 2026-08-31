@@ -1,12 +1,11 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
+
+import { SvgEditor } from './svg-editor/svg-editor';
 
 @Component({
-  imports: [RouterOutlet],
+  imports: [SvgEditor],
   selector: 'app-root',
   styleUrl: './app.scss',
-  templateUrl: './app.html',
+  template: '<app-svg-editor />',
 })
-export class App {
-  protected readonly title = signal('svg-editor');
-}
+export class App {}

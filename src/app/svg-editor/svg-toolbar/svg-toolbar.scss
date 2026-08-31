@@ -1,0 +1,19 @@
+.toolbar {
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.toolbar-title {
+  font: var(--mat-sys-title-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toolbar-spacer {
+  flex: 1;
+}
+
+.file-input {
+  display: none;
+}
