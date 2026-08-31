@@ -3,10 +3,16 @@ import { Injectable, computed, signal } from '@angular/core';
 import { getElementSelectionKey, isSelectableElement } from './models/attr-schema';
 import { formatCoordinate, isDraggableElement, translateElement } from './models/element-position';
 
-const DEFAULT_SAMPLE_URL = '/samples/cooling-line.svg';
+const DEFAULT_SAMPLE_URL = '/samples/plant.svg';
 const SELECTED_CLASS = 'svg-editor-selected';
 const SAMPLE_TEXT = 'Sample text';
 const SVG_NS = 'http://www.w3.org/2000/svg';
+
+interface ClassSlot {
+  readonly attrs: Readonly<Record<string, string>>;
+  readonly classes: readonly string[];
+  elements: Element[];
+}
 
 @Injectable({ providedIn: 'root' })
 export class SvgDocumentService {
@@ -14,7 +20,7 @@ export class SvgDocumentService {
   readonly selectedElement = signal<Element | null>(null);
   readonly selectionKey = signal('');
   readonly elementVersion = signal(0);
-  readonly fileName = signal('cooling-line.svg');
+  readonly fileName = signal('plant.svg');
 
   readonly documentTitle = computed(() => {
     const root = this.svgRoot();
@@ -35,6 +41,9 @@ export class SvgDocumentService {
     return this.fileName();
   });
 
+  private readonly classSlots = new Map<string, ClassSlot>();
+  private readonly managedClasses = new Set<string>();
+
   async loadDefault(): Promise<void> {
     const response = await fetch(DEFAULT_SAMPLE_URL);
     if (!response.ok) {
@@ -42,7 +51,7 @@ export class SvgDocumentService {
     }
 
     const svgText = await response.text();
-    this.loadFromString(svgText, 'cooling-line.svg');
+    this.loadFromString(svgText, 'plant.svg');
   }
 
   loadFromString(svgText: string, fileName = 'document.svg'): void {
@@ -60,11 +69,52 @@ export class SvgDocumentService {
     this.clearSelection();
     this.svgRoot.set(svg);
     this.fileName.set(fileName);
+    this.resyncClassSlots();
   }
 
   async loadFromFile(file: File): Promise<void> {
     const svgText = await file.text();
     this.loadFromString(svgText, file.name);
+  }
+
+  setCssClass(
+    attrs: Readonly<Record<string, string>>,
+    classes: readonly string[],
+  ): boolean {
+    const slotKey = attrsKey(attrs);
+    const existing = this.classSlots.get(slotKey);
+
+    if (existing) {
+      for (const element of existing.elements) {
+        for (const className of existing.classes) {
+          element.classList.remove(className);
+        }
+      }
+    }
+
+    if (classes.length === 0) {
+      if (existing) {
+        for (const className of existing.classes) {
+          this.managedClasses.delete(className);
+        }
+        this.classSlots.delete(slotKey);
+      }
+      return false;
+    }
+
+    const matches = this.findElementsByAttrs(attrs);
+    for (const className of classes) {
+      this.managedClasses.add(className);
+    }
+
+    for (const element of matches) {
+      for (const className of classes) {
+        element.classList.add(className);
+      }
+    }
+
+    this.classSlots.set(slotKey, { attrs, classes: [...classes], elements: matches });
+    return matches.length > 0;
   }
 
   selectElement(element: Element | null): void {
@@ -176,6 +226,12 @@ export class SvgDocumentService {
       node.classList.remove(SELECTED_CLASS);
     });
 
+    for (const className of this.managedClasses) {
+      clone.querySelectorAll(`.${className}`).forEach((node) => {
+        node.classList.remove(className);
+      });
+    }
+
     const xml = new XMLSerializer().serializeToString(clone);
     return xml.startsWith('<?xml') ? xml : `<?xml version="1.0" encoding="UTF-8"?>\n${xml}`;
   }
@@ -193,6 +249,42 @@ export class SvgDocumentService {
     anchor.download = this.fileName();
     anchor.click();
     URL.revokeObjectURL(url);
+  }
+
+  private resyncClassSlots(): void {
+    for (const slot of this.classSlots.values()) {
+      slot.elements = this.findElementsByAttrs(slot.attrs);
+      for (const element of slot.elements) {
+        for (const className of slot.classes) {
+          element.classList.add(className);
+        }
+      }
+    }
+  }
+
+  private findElementsByAttrs(attrs: Readonly<Record<string, string>>): Element[] {
+    const root = this.svgRoot();
+    if (!root) {
+      return [];
+    }
+
+    const entries = Object.entries(attrs);
+    if (entries.length === 0) {
+      return [];
+    }
+
+    const matches: Element[] = [];
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+
+    let node = walker.currentNode as Element | null;
+    while (node) {
+      if (node !== root && matchesAttrs(node, entries)) {
+        matches.push(node);
+      }
+      node = walker.nextNode() as Element | null;
+    }
+
+    return matches;
   }
 
   private nextTextElementId(root: SVGSVGElement): string {
@@ -213,4 +305,23 @@ export class SvgDocumentService {
     this.selectedElement.set(null);
     this.selectionKey.set('');
   }
+}
+
+function attrsKey(attrs: Readonly<Record<string, string>>): string {
+  return JSON.stringify(
+    Object.entries(attrs)
+      .map(([name, value]) => [name, value] as const)
+      .sort(([left], [right]) => left.localeCompare(right)),
+  );
+}
+
+function matchesAttrs(element: Element, entries: readonly [string, string][]): boolean {
+  return entries.every(([name, value]) => {
+    const actual = element.getAttribute(name);
+    if (actual == null) {
+      return false;
+    }
+
+    return actual.trim().toUpperCase() === value.trim().toUpperCase();
+  });
 }

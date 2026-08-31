@@ -6,7 +6,6 @@ import {
   ElementRef,
   inject,
   Injector,
-  output,
   signal,
   TemplateRef,
   viewChild,
@@ -36,6 +35,7 @@ import {
 
 import type { Device } from '../../../../shared/api-types';
 
+import { AppState } from '../../app.state';
 import { DeviceApiService } from '../device-api.service';
 
 const MAX_RECENT = 5;
@@ -57,8 +57,6 @@ const MAX_RECENT = 5;
   templateUrl: './device-search.html',
 })
 export class DeviceSearch {
-  readonly selected = output<Device>();
-
   protected readonly queryControl = new FormControl<string | Device>('', {
     nonNullable: true,
   });
@@ -66,9 +64,10 @@ export class DeviceSearch {
   protected readonly loading = signal(false);
   protected readonly error = signal(false);
   protected readonly queryText = signal('');
-  protected readonly selectedDevice = signal<Device | null>(null);
   protected readonly inputFocused = signal(false);
   protected readonly recents = signal<Device[]>([]);
+
+  protected readonly selectedDevice = inject(AppState).selectedDevice;
 
   protected readonly hasQuery = computed(() => this.queryText().length > 0);
 
@@ -81,6 +80,7 @@ export class DeviceSearch {
   );
 
   private readonly devices = inject(DeviceApiService);
+  private readonly appState = inject(AppState);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly overlay = inject(Overlay);
@@ -187,7 +187,7 @@ export class DeviceSearch {
   }
 
   protected clearSelection(): void {
-    this.selectedDevice.set(null);
+    this.appState.clearDevice();
     this.results.set([]);
     this.queryText.set('');
     this.error.set(false);
@@ -205,8 +205,7 @@ export class DeviceSearch {
 
   private selectDevice(device: Device): void {
     this.addRecent(device);
-    this.selectedDevice.set(device);
-    this.selected.emit(device);
+    this.appState.selectDevice(device);
     this.queryControl.setValue(this.displayDevice(device), { emitEvent: false });
     this.queryText.set('');
     this.results.set([]);
