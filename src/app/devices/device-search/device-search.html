@@ -1,0 +1,100 @@
+<div class="device-search" role="search">
+  <mat-form-field
+    #searchOrigin
+    class="device-search-field"
+    appearance="outline"
+    subscriptSizing="dynamic"
+  >
+    <mat-label>Search devices</mat-label>
+
+    @if (loading()) {
+      <mat-spinner matPrefix diameter="20" aria-label="Searching devices" />
+    } @else {
+      <mat-icon matPrefix aria-hidden="true">search</mat-icon>
+    }
+
+    <input
+      #searchInput
+      matInput
+      type="text"
+      [formControl]="queryControl"
+      [matAutocomplete]="deviceAutocomplete"
+      [matAutocompleteDisabled]="selectedDevice() !== null"
+      [readonly]="selectedDevice() !== null"
+      [attr.aria-readonly]="selectedDevice() !== null"
+      aria-label="Search devices"
+      aria-controls="device-search-recents"
+      [attr.aria-expanded]="showRecents()"
+      autocomplete="off"
+      (focus)="onInputFocus()"
+      (blur)="onInputBlur()"
+    />
+
+    @if (selectedDevice()) {
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        aria-label="Clear selected device"
+        (click)="clearSelection()"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+
+    <mat-autocomplete
+      #deviceAutocomplete="matAutocomplete"
+      [displayWith]="displayDevice"
+      (optionSelected)="onDeviceSelected($event.option.value)"
+    >
+      @if (error()) {
+        <mat-option disabled>
+          <span class="device-search-message">Could not load devices. Try again.</span>
+        </mat-option>
+      } @else if (!loading() && hasQuery() && results().length === 0) {
+        <mat-option disabled>
+          <span class="device-search-message">No devices found</span>
+        </mat-option>
+      } @else {
+        @for (device of results(); track device.id) {
+          <mat-option [value]="device">
+            <span class="device-search-option">
+              <span class="device-search-code">{{ device.code }}</span>
+              <span class="device-search-name" dir="auto">{{ displayName(device) }}</span>
+            </span>
+          </mat-option>
+        }
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+</div>
+
+<ng-template #recentsTemplate>
+  <div
+    id="device-search-recents"
+    class="device-search-recents"
+    (mousedown)="keepInputFocus($event)"
+  >
+    <p class="device-search-recents-label">Recent devices</p>
+    <mat-chip-set class="device-search-recents-chips" aria-label="Recent devices">
+      @for (device of recents(); track device.id) {
+        <mat-chip
+          class="device-search-recent-chip"
+          [removable]="true"
+          (removed)="removeRecent(device)"
+          (click)="selectRecent(device)"
+        >
+          <span class="device-search-recent-chip-label" dir="auto">{{ chipLabel(device) }}</span>
+          <button
+            matChipRemove
+            type="button"
+            [attr.aria-label]="'Remove ' + chipLabel(device) + ' from recent devices'"
+            (click)="$event.stopPropagation()"
+          >
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip>
+      }
+    </mat-chip-set>
+  </div>
+</ng-template>

@@ -1,0 +1,94 @@
+:host {
+  display: block;
+  width: 48rem;
+  max-width: calc(100% - 2rem);
+}
+
+.device-search {
+  width: 100%;
+  pointer-events: auto;
+}
+
+.device-search-field {
+  display: block;
+  width: 100%;
+  background: var(--mat-sys-surface);
+  border-radius: 0.75rem;
+}
+
+.device-search-field ::ng-deep .mat-mdc-text-field-wrapper {
+  width: 100%;
+  background: var(--mat-sys-surface);
+}
+
+.device-search-field ::ng-deep .mat-mdc-form-field-flex {
+  width: 100%;
+}
+
+.device-search-field ::ng-deep .mat-mdc-form-field-infix {
+  width: 100%;
+  min-width: 0;
+}
+
+.device-search-field ::ng-deep .mat-mdc-form-field-icon-prefix mat-spinner {
+  margin-inline: 0.75rem;
+}
+
+.device-search-recents {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 0.75rem;
+  background: var(--mat-sys-surface);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 8%),
+    0 8px 24px rgb(0 0 0 / 8%);
+}
+
+.device-search-recents-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.device-search-recents-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.device-search-recent-chip {
+  cursor: pointer;
+}
+
+.device-search-recent-chip-label {
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.device-search-option {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.device-search-code {
+  font-weight: 600;
+}
+
+.device-search-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.device-search-message {
+  color: var(--mat-sys-on-surface-variant);
+}

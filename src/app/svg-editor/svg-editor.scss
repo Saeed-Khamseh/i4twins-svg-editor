@@ -12,6 +12,23 @@
   min-height: 0;
 }
 
+.editor-device-search {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  z-index: 2;
+  width: 48rem;
+  max-width: calc(100% - 2rem);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.editor-canvas-wrap {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
 .editor-canvas {
   min-width: 0;
   min-height: 0;
