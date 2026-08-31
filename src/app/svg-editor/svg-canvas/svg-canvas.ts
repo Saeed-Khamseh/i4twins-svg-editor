@@ -25,6 +25,7 @@ interface DragState {
       (pointerup)="onPointerUp($event)"
       (pointercancel)="onPointerUp($event)"
       (keydown.escape)="onEscape($event)"
+      (contextmenu)="onContextMenu($event)"
     >
       <div #host class="canvas-host"></div>
       @if (!document.svgRoot()) {
@@ -136,6 +137,18 @@ export class SvgCanvas implements AfterViewInit {
   protected onEscape(event: Event): void {
     event.preventDefault();
     this.document.selectElement(null);
+  }
+
+  protected onContextMenu(event: MouseEvent): void {
+    event.preventDefault();
+
+    const root = this.document.svgRoot();
+    if (!root) {
+      return;
+    }
+
+    const point = clientToSvgPoint(root, event.clientX, event.clientY);
+    this.document.addTextElement(point.x, point.y);
   }
 
   private resolveSelectableElement(target: EventTarget | null): Element | null {

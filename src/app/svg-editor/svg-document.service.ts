@@ -1,10 +1,12 @@
 import { Injectable, computed, signal } from '@angular/core';
 
 import { getElementSelectionKey, isSelectableElement } from './models/attr-schema';
-import { isDraggableElement, translateElement } from './models/element-position';
+import { formatCoordinate, isDraggableElement, translateElement } from './models/element-position';
 
 const DEFAULT_SAMPLE_URL = '/samples/cooling-line.svg';
 const SELECTED_CLASS = 'svg-editor-selected';
+const SAMPLE_TEXT = 'Sample text';
+const SVG_NS = 'http://www.w3.org/2000/svg';
 
 @Injectable({ providedIn: 'root' })
 export class SvgDocumentService {
@@ -132,6 +134,27 @@ export class SvgDocumentService {
     this.elementVersion.update((value) => value + 1);
   }
 
+  addTextElement(x: number, y: number): SVGTextElement | null {
+    const root = this.svgRoot();
+    if (!root) {
+      return null;
+    }
+
+    const text = document.createElementNS(SVG_NS, 'text');
+    text.setAttribute('id', this.nextTextElementId(root));
+    text.setAttribute('x', formatCoordinate(x));
+    text.setAttribute('y', formatCoordinate(y));
+    text.setAttribute('font-family', 'Segoe UI, Roboto, sans-serif');
+    text.setAttribute('font-size', '14');
+    text.setAttribute('fill', '#2d3748');
+    text.textContent = SAMPLE_TEXT;
+
+    root.appendChild(text);
+    this.elementVersion.update((value) => value + 1);
+    this.selectElement(text);
+    return text;
+  }
+
   translateSelectedElement(dx: number, dy: number): void {
     const element = this.selectedElement();
     if (!element || !isDraggableElement(element)) {
@@ -170,6 +193,15 @@ export class SvgDocumentService {
     anchor.download = this.fileName();
     anchor.click();
     URL.revokeObjectURL(url);
+  }
+
+  private nextTextElementId(root: SVGSVGElement): string {
+    let index = 1;
+    while (root.querySelector(`#text-${index}`)) {
+      index += 1;
+    }
+
+    return `text-${index}`;
   }
 
   private clearSelection(): void {

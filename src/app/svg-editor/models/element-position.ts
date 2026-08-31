@@ -119,6 +119,6 @@ function shiftTransform(element: Element, dx: number, dy: number): void {
   element.setAttribute('transform', existing ? `${translate} ${existing}` : translate);
 }
 
-function formatCoordinate(value: number): string {
+export function formatCoordinate(value: number): string {
   return String(Math.round(value * 100) / 100);
 }
