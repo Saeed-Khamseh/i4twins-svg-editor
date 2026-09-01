@@ -4,8 +4,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
-import { SvgDocumentService } from '../svg-document.service';
 import { AppState } from '../../app.state';
+import { SvgDocumentService } from '../../services/svg-document.service';
 
 @Component({
   selector: 'app-svg-toolbar',

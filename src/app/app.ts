@@ -6,7 +6,7 @@ import { combineLatest, pairwise, startWith } from 'rxjs';
 import type { Device, DeviceStatus } from '../../shared/api-types';
 
 import { AppState } from './app.state';
-import { SvgEditor } from './svg-editor/svg-editor';
+import { SvgEditor } from './components/svg-editor/svg-editor';
 
 interface HighlightContext {
   readonly device: Device | null;

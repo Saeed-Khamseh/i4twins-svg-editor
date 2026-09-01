@@ -9,13 +9,13 @@ import {
 } from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
 
-import { DeviceSearch } from '../devices/device-search/device-search';
-import { AppState } from '../app.state';
-import { isSelectableElement } from './models/attr-schema';
-import { clientToSvgPoint, isDraggableElement } from './models/element-position';
-import { SvgDocumentService } from './svg-document.service';
-import { SvgPropertiesPanel } from './svg-properties-panel/svg-properties-panel';
-import { SvgToolbar } from './svg-toolbar/svg-toolbar';
+import { AppState } from '../../app.state';
+import { DeviceSearch } from '../device-search/device-search';
+import { isSelectableElement } from '../../models/attr-schema';
+import { clientToSvgPoint, isDraggableElement } from '../../models/element-position';
+import { SvgDocumentService } from '../../services/svg-document.service';
+import { SvgPropertiesPanel } from '../svg-properties-panel/svg-properties-panel';
+import { SvgToolbar } from '../svg-toolbar/svg-toolbar';
 
 interface DragState {
   readonly pointerId: number;

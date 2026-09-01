@@ -27,7 +27,7 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs';
 import type { Device } from '../../../../shared/api-types';
 
 import { AppState } from '../../app.state';
-import { DeviceApiService } from '../device-api.service';
+import { DeviceApiService } from '../../services/device-api.service';
 
 const MAX_RECENT = 5;
 

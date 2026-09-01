@@ -4,8 +4,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
-import { AttrFieldDef, getFieldsForElement, isHexColor } from '../models/attr-schema';
-import { SvgDocumentService } from '../svg-document.service';
+import { AttrFieldDef, getFieldsForElement, isHexColor } from '../../models/attr-schema';
+import { SvgDocumentService } from '../../services/svg-document.service';
 
 @Component({
   selector: 'app-svg-properties-panel',

@@ -5,8 +5,8 @@ import {
   isSelectableElement,
   readFieldValue,
   writeFieldValue,
-} from './models/attr-schema';
-import { formatCoordinate, isDraggableElement, translateElement } from './models/element-position';
+} from '../models/attr-schema';
+import { formatCoordinate, isDraggableElement, translateElement } from '../models/element-position';
 
 const DEFAULT_SAMPLE_URL = '/samples/plant.svg';
 const SELECTED_CLASS = 'svg-editor-selected';

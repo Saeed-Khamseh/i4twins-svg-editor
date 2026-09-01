@@ -12,7 +12,7 @@ import { EMPTY, Observable, catchError, delay, of, pipe, switchMap, tap } from '
 
 import type { Device, DeviceStatusMap } from '../../shared/api-types';
 
-import { DeviceApiService } from './devices/device-api.service';
+import { DeviceApiService } from './services/device-api.service';
 
 const DEVICE_ID_ATTR = 'data-device-id';
 const POLL_INTERVAL_MS = 5000;
