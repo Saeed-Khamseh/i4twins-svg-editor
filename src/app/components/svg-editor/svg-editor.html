@@ -8,15 +8,12 @@
       }
 
       <div
+        #shell
         class="canvas-shell editor-canvas"
-        [class.is-dragging]="isDragging()"
         role="application"
         aria-label="SVG canvas"
         tabindex="0"
         (pointerdown)="onPointerDown($event)"
-        (pointermove)="onPointerMove($event)"
-        (pointerup)="onPointerUp($event)"
-        (pointercancel)="onPointerUp($event)"
         (keydown.escape)="onEscape($event)"
         (contextmenu)="onContextMenu($event)"
       >
