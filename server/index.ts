@@ -7,8 +7,14 @@ const PORT = 3001;
 const app = express();
 const catalog = DeviceCatalog.loadFromFile();
 
-app.get('/api/devices/status', (_req, res) => {
-  res.json(catalog.statusMap());
+app.use(express.json());
+
+app.post('/api/devices/status', (req, res) => {
+  const ids = Array.isArray(req.body?.ids)
+    ? req.body.ids.filter((id: unknown): id is string => typeof id === 'string')
+    : [];
+
+  res.json(catalog.statusesForIds(ids));
 });
 
 app.get('/api/devices', (req, res) => {

@@ -10,6 +10,7 @@ import {
 import { MatSidenavModule } from '@angular/material/sidenav';
 
 import { DeviceSearch } from '../devices/device-search/device-search';
+import { AppState } from '../app.state';
 import { isSelectableElement } from './models/attr-schema';
 import { clientToSvgPoint, isDraggableElement } from './models/element-position';
 import { SvgDocumentService } from './svg-document.service';
@@ -27,12 +28,14 @@ interface DragState {
   imports: [SvgToolbar, SvgPropertiesPanel, MatSidenavModule, DeviceSearch],
   styleUrl: './svg-editor.scss',
   template: `
-    <div class="editor-layout">
+    <div class="editor-layout" [class.editor-preview]="appState.previewMode()">
       <app-svg-toolbar />
 
       <div class="editor-body">
         <div class="editor-canvas-wrap">
-          <app-device-search class="editor-device-search" />
+          @if (!appState.previewMode()) {
+            <app-device-search class="editor-device-search" />
+          }
 
           <div
             class="canvas-shell editor-canvas"
@@ -53,13 +56,16 @@ interface DragState {
             }
           </div>
         </div>
-        <app-svg-properties-panel class="editor-sidebar" />
+        @if (!appState.previewMode()) {
+          <app-svg-properties-panel class="editor-sidebar" />
+        }
       </div>
     </div>
   `,
 })
 export class SvgEditor implements AfterViewInit {
   protected readonly document = inject(SvgDocumentService);
+  protected readonly appState = inject(AppState);
   protected readonly isDragging = signal(false);
 
   private readonly host = viewChild.required<ElementRef<HTMLDivElement>>('host');
@@ -70,6 +76,8 @@ export class SvgEditor implements AfterViewInit {
   constructor() {
     effect(() => {
       const root = this.document.svgRoot();
+      this.appState.setSvg(root);
+
       if (!this.hostReady) {
         return;
       }
@@ -95,6 +103,10 @@ export class SvgEditor implements AfterViewInit {
   }
 
   protected onPointerDown(event: PointerEvent): void {
+    if (this.appState.previewMode()) {
+      return;
+    }
+
     if (event.button !== 0) {
       return;
     }
@@ -166,11 +178,19 @@ export class SvgEditor implements AfterViewInit {
   }
 
   protected onEscape(event: Event): void {
+    if (this.appState.previewMode()) {
+      return;
+    }
+
     event.preventDefault();
     this.document.selectElement(null);
   }
 
   protected onContextMenu(event: MouseEvent): void {
+    if (this.appState.previewMode()) {
+      return;
+    }
+
     event.preventDefault();
 
     const root = this.document.svgRoot();

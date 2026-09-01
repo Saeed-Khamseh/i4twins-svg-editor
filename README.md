@@ -31,7 +31,7 @@ Data is served from [`public/data/devices.json`](public/data/devices.json) via a
 | Endpoint | Description |
 | --- | --- |
 | `GET /api/devices?q={term}` | Case-insensitive search by `id`, `name`, or `code`. Returns up to 20 full `Device` records. |
-| `GET /api/devices/status` | Minimal `{ [deviceId]: status }` map for preview-mode polling. |
+| `POST /api/devices/status` | Body `{ ids: string[] }`. Returns `{ [deviceId]: status \| null }` with random `running`, `stopped`, `fault`, or `null` per id (fake polling backend). |
 
 Shared types live in [`shared/api-types.ts`](shared/api-types.ts) and are used by both the server and the Angular client.
 

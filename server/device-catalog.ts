@@ -2,7 +2,13 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import type { Device, DeviceStatus, DeviceStatusMap, RawDeviceRecord } from '../shared/api-types.js';
+import type {
+  Device,
+  DeviceRuntimeStatus,
+  DeviceStatus,
+  DeviceStatusMap,
+  RawDeviceRecord,
+} from '../shared/api-types.js';
 
 const KNOWN_STATUSES = new Set<DeviceStatus>(['running', 'stopped', 'fault']);
 const SEARCH_LIMIT = 20;
@@ -101,7 +107,19 @@ export class DeviceCatalog {
       .slice(0, SEARCH_LIMIT);
   }
 
-  statusMap(): DeviceStatusMap {
-    return Object.fromEntries([...this.index.values()].map((device) => [device.id, device.status]));
+  statusesForIds(ids: readonly string[]): DeviceStatusMap {
+    return Object.fromEntries(ids.map((id) => [id, randomRuntimeStatus()]));
   }
+}
+
+const RUNTIME_STATUSES: readonly (DeviceRuntimeStatus | null)[] = [
+  'running',
+  'stopped',
+  'fault',
+  null,
+];
+
+function randomRuntimeStatus(): DeviceRuntimeStatus | null {
+  const index = Math.floor(Math.random() * RUNTIME_STATUSES.length);
+  return RUNTIME_STATUSES[index] ?? null;
 }

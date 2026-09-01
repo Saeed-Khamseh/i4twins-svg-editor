@@ -3,7 +3,7 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { combineLatest, pairwise, startWith } from 'rxjs';
 
-import type { Device } from '../../shared/api-types';
+import type { Device, DeviceRuntimeStatus } from '../../shared/api-types';
 
 import { AppState } from './app.state';
 import { SvgEditor } from './svg-editor/svg-editor';
@@ -14,6 +14,20 @@ interface HighlightContext {
   readonly svgRoot: SVGSVGElement | null;
   readonly editor: SvgEditor | undefined;
 }
+
+interface StatusContext {
+  readonly previewMode: boolean;
+  readonly deviceStatuses: Record<string, DeviceRuntimeStatus | null>;
+  readonly referencedDeviceIds: readonly string[];
+  readonly svgRoot: SVGSVGElement | null;
+  readonly editor: SvgEditor | undefined;
+}
+
+const STATUS_CLASSES: Record<DeviceRuntimeStatus, string> = {
+  running: 'svg-device-status-running',
+  stopped: 'svg-device-status-stopped',
+  fault: 'svg-device-status-fault',
+};
 
 @Component({
   imports: [SvgEditor],
@@ -64,6 +78,51 @@ export class App {
           this.snackBar.open('Not on this drawing.', 'Dismiss', {
             duration: 4000,
           });
+        }
+      });
+
+    combineLatest({
+      previewMode: toObservable(this.appState.previewMode),
+      deviceStatuses: toObservable(this.appState.deviceStatuses),
+      referencedDeviceIds: toObservable(this.appState.referencedDeviceIds),
+      svgRoot: toObservable(this.document.svgRoot),
+      editor: toObservable(this.editor),
+    })
+      .pipe(
+        startWith<StatusContext>({
+          previewMode: false,
+          deviceStatuses: {},
+          referencedDeviceIds: [],
+          svgRoot: null,
+          editor: undefined,
+        }),
+        pairwise(),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(([previous, current]) => {
+        const editor = current.editor;
+        if (!editor) {
+          return;
+        }
+
+        void current.svgRoot;
+
+        const allIds = new Set([
+          ...previous.referencedDeviceIds,
+          ...current.referencedDeviceIds,
+        ]);
+
+        for (const id of allIds) {
+          if (!current.previewMode || !current.referencedDeviceIds.includes(id)) {
+            editor.setCssClass({ 'data-device-id': id }, []);
+            continue;
+          }
+
+          const status = current.deviceStatuses[id] ?? null;
+          editor.setCssClass(
+            { 'data-device-id': id },
+            status ? [STATUS_CLASSES[status]] : [],
+          );
         }
       });
   }

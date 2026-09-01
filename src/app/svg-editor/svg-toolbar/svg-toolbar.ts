@@ -5,6 +5,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { SvgDocumentService } from '../svg-document.service';
+import { AppState } from '../../app.state';
 
 @Component({
   selector: 'app-svg-toolbar',
@@ -24,6 +25,16 @@ import { SvgDocumentService } from '../svg-document.service';
       <span class="toolbar-title">{{ document.documentTitle() }}</span>
 
       <span class="toolbar-spacer"></span>
+
+      <button
+        mat-icon-button
+        type="button"
+        aria-label="Toggle preview mode"
+        [attr.aria-pressed]="appState.previewMode()"
+        (click)="appState.setPreviewMode(!appState.previewMode())"
+      >
+        <mat-icon>{{ appState.previewMode() ? 'edit' : 'visibility' }}</mat-icon>
+      </button>
 
       <button
         mat-icon-button
@@ -49,6 +60,7 @@ import { SvgDocumentService } from '../svg-document.service';
 })
 export class SvgToolbar {
   protected readonly document = inject(SvgDocumentService);
+  protected readonly appState = inject(AppState);
   private readonly snackBar = inject(MatSnackBar);
   private readonly fileInput = viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
 

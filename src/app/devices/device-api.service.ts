@@ -14,7 +14,7 @@ export class DeviceApiService {
     return this.http.get<Device[]>(this.baseUrl, { params });
   }
 
-  getStatusMap(): Observable<DeviceStatusMap> {
-    return this.http.get<DeviceStatusMap>(`${this.baseUrl}/status`);
+  getStatuses(deviceIds: readonly string[]): Observable<DeviceStatusMap> {
+    return this.http.post<DeviceStatusMap>(`${this.baseUrl}/status`, { ids: deviceIds });
   }
 }
