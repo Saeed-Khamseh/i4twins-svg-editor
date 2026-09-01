@@ -3,7 +3,7 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { combineLatest, pairwise, startWith } from 'rxjs';
 
-import type { Device, DeviceRuntimeStatus } from '../../shared/api-types';
+import type { Device, DeviceStatus } from '../../shared/api-types';
 
 import { AppState } from './app.state';
 import { SvgEditor } from './svg-editor/svg-editor';
@@ -17,13 +17,13 @@ interface HighlightContext {
 
 interface StatusContext {
   readonly previewMode: boolean;
-  readonly deviceStatuses: Record<string, DeviceRuntimeStatus | null>;
+  readonly deviceStatuses: Record<string, DeviceStatus | null>;
   readonly referencedDeviceIds: readonly string[];
   readonly svgRoot: SVGSVGElement | null;
   readonly editor: SvgEditor | undefined;
 }
 
-const STATUS_CLASSES: Record<DeviceRuntimeStatus, string> = {
+const STATUS_CLASSES: Record<DeviceStatus, string> = {
   running: 'svg-device-status-running',
   stopped: 'svg-device-status-stopped',
   fault: 'svg-device-status-fault',

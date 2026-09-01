@@ -39,7 +39,7 @@ Shared types live in [`shared/api-types.ts`](shared/api-types.ts) and are used b
 
 - **Duplicate IDs** (`DVC-1576`, `DVC-1584`): last record wins when building the in-memory catalog.
 - **Case mismatch** (`dvc-1101` vs `DVC-1101`): indexed by uppercase ID; canonical ID from the winning record is returned.
-- **Unknown status** (`null`, `degraded`, `FAULT`): normalized to `running`, `stopped`, `fault`, or `unknown`.
+- **Unknown status** (`null`, `degraded`, invalid values): normalized to `running`, `stopped`, `fault`, or `null`.
 - **Missing name**: kept as `null`; search still matches on `code` and `id`.
 
 ## Key decisions

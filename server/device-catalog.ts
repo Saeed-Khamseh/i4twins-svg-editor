@@ -2,13 +2,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import type {
-  Device,
-  DeviceRuntimeStatus,
-  DeviceStatus,
-  DeviceStatusMap,
-  RawDeviceRecord,
-} from '../shared/api-types.js';
+import type { Device, DeviceStatus, DeviceStatusMap, RawDeviceRecord } from '../shared/api-types.js';
 
 const KNOWN_STATUSES = new Set<DeviceStatus>(['running', 'stopped', 'fault']);
 const SEARCH_LIMIT = 20;
@@ -16,13 +10,13 @@ const SEARCH_LIMIT = 20;
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const devicesPath = join(__dirname, '../public/data/devices.json');
 
-function normalizeStatus(raw: string | null | undefined): DeviceStatus {
+function normalizeStatus(raw: string | null | undefined): DeviceStatus | null {
   if (raw == null || raw.trim() === '') {
-    return 'unknown';
+    return null;
   }
 
   const normalized = raw.trim().toLowerCase();
-  return KNOWN_STATUSES.has(normalized as DeviceStatus) ? (normalized as DeviceStatus) : 'unknown';
+  return KNOWN_STATUSES.has(normalized as DeviceStatus) ? (normalized as DeviceStatus) : null;
 }
 
 function normalizeLastSeen(raw: string | null | undefined): string | null {
@@ -108,18 +102,13 @@ export class DeviceCatalog {
   }
 
   statusesForIds(ids: readonly string[]): DeviceStatusMap {
-    return Object.fromEntries(ids.map((id) => [id, randomRuntimeStatus()]));
+    return Object.fromEntries(ids.map((id) => [id, randomDeviceStatus()]));
   }
 }
 
-const RUNTIME_STATUSES: readonly (DeviceRuntimeStatus | null)[] = [
-  'running',
-  'stopped',
-  'fault',
-  null,
-];
+const DEVICE_STATUSES: readonly (DeviceStatus | null)[] = ['running', 'stopped', 'fault', null];
 
-function randomRuntimeStatus(): DeviceRuntimeStatus | null {
-  const index = Math.floor(Math.random() * RUNTIME_STATUSES.length);
-  return RUNTIME_STATUSES[index] ?? null;
+function randomDeviceStatus(): DeviceStatus | null {
+  const index = Math.floor(Math.random() * DEVICE_STATUSES.length);
+  return DEVICE_STATUSES[index] ?? null;
 }

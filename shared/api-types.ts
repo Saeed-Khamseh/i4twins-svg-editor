@@ -1,6 +1,4 @@
-export type DeviceStatus = 'running' | 'stopped' | 'fault' | 'unknown';
-
-export type DeviceRuntimeStatus = 'running' | 'stopped' | 'fault';
+export type DeviceStatus = 'running' | 'stopped' | 'fault';
 
 export interface Device {
   id: string;
@@ -8,12 +6,12 @@ export interface Device {
   name: string | null;
   type: string;
   area: string;
-  status: DeviceStatus;
+  status: DeviceStatus | null;
   lastSeen: string | null;
   vendor: string;
 }
 
-export type DeviceStatusMap = Record<string, DeviceRuntimeStatus | null>;
+export type DeviceStatusMap = Record<string, DeviceStatus | null>;
 
 /** Raw row shape as stored in devices.json (before normalization). */
 export interface RawDeviceRecord {
