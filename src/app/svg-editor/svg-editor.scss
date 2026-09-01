@@ -83,68 +83,47 @@
   outline-offset: 2px;
 }
 
-@property --highlight-hue {
-  syntax: '<number>';
-  initial-value: 0;
-  inherits: false;
-}
-
-@keyframes svg-device-highlight-gradient {
-  to {
-    --highlight-hue: 360;
-  }
-}
-
-.canvas-host ::ng-deep .svg-device-highlight {
-  --highlight-hue: 0;
-  animation: svg-device-highlight-gradient 3s linear infinite;
-  filter:
-    drop-shadow(0 0 1px hsl(var(--highlight-hue) 85% 55%))
-    drop-shadow(0 0 3px hsl(calc(var(--highlight-hue) + 120) 85% 55%));
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .canvas-host ::ng-deep .svg-device-highlight {
-    animation: none;
-    filter:
-      drop-shadow(0 0 2px var(--mat-sys-primary))
-      drop-shadow(0 0 4px var(--mat-sys-primary));
-  }
-}
-
-@keyframes svg-device-status-pulse {
+@keyframes svg-device-glow {
   0%,
   100% {
-    filter: drop-shadow(0 0 2px var(--status-glow)) drop-shadow(0 0 6px var(--status-glow));
+    filter: drop-shadow(0 0 1px var(--device-glow)) drop-shadow(0 0 2px var(--device-glow));
   }
 
   50% {
-    filter: drop-shadow(0 0 4px var(--status-glow)) drop-shadow(0 0 12px var(--status-glow));
+    filter: drop-shadow(0 0 2px var(--device-glow)) drop-shadow(0 0 4px var(--device-glow));
   }
 }
 
+.canvas-host ::ng-deep .svg-device-highlight,
+.canvas-host ::ng-deep .svg-device-status-running,
+.canvas-host ::ng-deep .svg-device-status-stopped,
+.canvas-host ::ng-deep .svg-device-status-fault {
+  animation: svg-device-glow 5s ease-in-out infinite;
+}
+
+.canvas-host ::ng-deep .svg-device-highlight {
+  --device-glow: var(--mat-sys-primary);
+}
+
 .canvas-host ::ng-deep .svg-device-status-running {
-  --status-glow: hsl(142 70% 42%);
-  animation: svg-device-status-pulse 2s ease-in-out infinite;
+  --device-glow: hsl(142 70% 42%);
 }
 
 .canvas-host ::ng-deep .svg-device-status-stopped {
-  --status-glow: hsl(45 90% 48%);
-  animation: svg-device-status-pulse 2.5s ease-in-out infinite;
+  --device-glow: hsl(45 90% 48%);
 }
 
 .canvas-host ::ng-deep .svg-device-status-fault {
-  --status-glow: hsl(0 80% 50%);
-  animation: svg-device-status-pulse 1.2s ease-in-out infinite;
+  --device-glow: hsl(0 80% 50%);
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .canvas-host ::ng-deep .svg-device-highlight,
   .canvas-host ::ng-deep .svg-device-status-running,
   .canvas-host ::ng-deep .svg-device-status-stopped,
   .canvas-host ::ng-deep .svg-device-status-fault {
     animation: none;
-    outline: 2px solid var(--status-glow);
-    outline-offset: 2px;
+    filter: drop-shadow(0 0 1px var(--device-glow)) drop-shadow(0 0 3px var(--device-glow));
   }
 }
 
