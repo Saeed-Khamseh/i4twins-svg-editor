@@ -27,41 +27,7 @@ interface DragState {
   selector: 'app-svg-editor',
   imports: [SvgToolbar, SvgPropertiesPanel, MatSidenavModule, DeviceSearch],
   styleUrl: './svg-editor.scss',
-  template: `
-    <div class="editor-layout" [class.editor-preview]="appState.previewMode()">
-      <app-svg-toolbar />
-
-      <div class="editor-body">
-        <div class="editor-canvas-wrap">
-          @if (!appState.previewMode()) {
-            <app-device-search class="editor-device-search" />
-          }
-
-          <div
-            class="canvas-shell editor-canvas"
-            [class.is-dragging]="isDragging()"
-            role="application"
-            aria-label="SVG canvas"
-            tabindex="0"
-            (pointerdown)="onPointerDown($event)"
-            (pointermove)="onPointerMove($event)"
-            (pointerup)="onPointerUp($event)"
-            (pointercancel)="onPointerUp($event)"
-            (keydown.escape)="onEscape($event)"
-            (contextmenu)="onContextMenu($event)"
-          >
-            <div #host class="canvas-host"></div>
-            @if (!document.svgRoot()) {
-              <p class="empty-state">No SVG loaded.</p>
-            }
-          </div>
-        </div>
-        @if (!appState.previewMode()) {
-          <app-svg-properties-panel class="editor-sidebar" />
-        }
-      </div>
-    </div>
-  `,
+  templateUrl: './svg-editor.html',
 })
 export class SvgEditor implements AfterViewInit {
   protected readonly document = inject(SvgDocumentService);

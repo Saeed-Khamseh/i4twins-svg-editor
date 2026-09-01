@@ -11,52 +11,7 @@ import { AppState } from '../../app.state';
   selector: 'app-svg-toolbar',
   imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatSnackBarModule],
   styleUrl: './svg-toolbar.scss',
-  template: `
-    <mat-toolbar class="toolbar" role="banner">
-      <button
-        mat-icon-button
-        type="button"
-        aria-label="Import SVG"
-        (click)="fileInput.click()"
-      >
-        <mat-icon>file_upload</mat-icon>
-      </button>
-
-      <button
-        mat-icon-button
-        type="button"
-        aria-label="Export SVG"
-        [disabled]="!document.svgRoot()"
-        (click)="exportSvg()"
-      >
-        <mat-icon>file_download</mat-icon>
-      </button>
-
-      <span class="toolbar-title">Dana Tadbir HMI</span>
-
-      <span class="toolbar-spacer"></span>
-
-      <button
-        mat-icon-button
-        type="button"
-        aria-label="Toggle preview mode"
-        [attr.aria-pressed]="appState.previewMode()"
-        (click)="appState.setPreviewMode(!appState.previewMode())"
-      >
-        <mat-icon>{{ appState.previewMode() ? 'edit' : 'visibility' }}</mat-icon>
-      </button>
-
-      <input
-        #fileInput
-        class="file-input"
-        type="file"
-        accept=".svg,image/svg+xml"
-        aria-hidden="true"
-        tabindex="-1"
-        (change)="onFileSelected($event)"
-      />
-    </mat-toolbar>
-  `,
+  templateUrl: './svg-toolbar.html',
 })
 export class SvgToolbar {
   protected readonly document = inject(SvgDocumentService);

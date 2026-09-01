@@ -32,7 +32,7 @@ const STATUS_CLASSES: Record<DeviceStatus, string> = {
   imports: [SvgEditor],
   selector: 'app-root',
   styleUrl: './app.scss',
-  template: '<app-svg-editor #editor />',
+  templateUrl: './app.html',
 })
 export class App {
   private readonly appState = inject(AppState);
