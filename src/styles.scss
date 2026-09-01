@@ -4,6 +4,7 @@
 // Learn more about theming and how to use it for your application's
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+@use 'sass:map';
 
 html {
   height: 100%;
@@ -36,4 +37,23 @@ body {
   margin: 0;
   height: 100%;
 }
+
+.mat-mdc-snack-bar-container.http-error-client {
+  @include mat.snack-bar-overrides(
+    (
+      container-color: map.get(mat.$yellow-palette, 90),
+      supporting-text-color: map.get(mat.$yellow-palette, 10),
+    )
+  );
+}
+
+.mat-mdc-snack-bar-container.http-error-server {
+  @include mat.snack-bar-overrides(
+    (
+      container-color: var(--mat-sys-error-container),
+      supporting-text-color: var(--mat-sys-on-error-container),
+    )
+  );
+}
+
 /* You can add global styles to this file, and also import other style files */
