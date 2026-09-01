@@ -167,23 +167,6 @@ export function isHexColor(value: string): boolean {
   return /^#[0-9a-fA-F]{6}$/.test(value);
 }
 
-export function getElementSelectionKey(element: Element): string {
-  const parts: string[] = [];
-  let current: Element | null = element;
-
-  while (current) {
-    const tag = current.tagName.toLowerCase();
-    const id = current.getAttribute('id');
-    const index = current.parentElement
-      ? Array.from(current.parentElement.children).indexOf(current)
-      : 0;
-    parts.unshift(id ? `${tag}#${id}` : `${tag}:${index}`);
-    current = current.parentElement;
-  }
-
-  return parts.join('/');
-}
-
 export function readFieldValue(element: Element, fieldName: string): string {
   if (fieldName === '#text') {
     return element.textContent ?? '';

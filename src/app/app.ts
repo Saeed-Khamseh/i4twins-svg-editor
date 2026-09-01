@@ -7,7 +7,6 @@ import type { Device, DeviceStatus } from '../../shared/api-types';
 
 import { AppState } from './app.state';
 import { SvgEditor } from './svg-editor/svg-editor';
-import { SvgDocumentService } from './svg-editor/svg-document.service';
 
 interface HighlightContext {
   readonly device: Device | null;
@@ -37,7 +36,6 @@ const STATUS_CLASSES: Record<DeviceStatus, string> = {
 })
 export class App {
   private readonly appState = inject(AppState);
-  private readonly document = inject(SvgDocumentService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
   private readonly editor = viewChild.required<SvgEditor>('editor');
@@ -45,7 +43,7 @@ export class App {
   constructor() {
     combineLatest({
       device: toObservable(this.appState.selectedDevice),
-      svgRoot: toObservable(this.document.svgRoot),
+      svgRoot: toObservable(this.appState.svgRoot),
       editor: toObservable(this.editor),
     })
       .pipe(
@@ -85,7 +83,7 @@ export class App {
       previewMode: toObservable(this.appState.previewMode),
       deviceStatuses: toObservable(this.appState.deviceStatuses),
       referencedDeviceIds: toObservable(this.appState.referencedDeviceIds),
-      svgRoot: toObservable(this.document.svgRoot),
+      svgRoot: toObservable(this.appState.svgRoot),
       editor: toObservable(this.editor),
     })
       .pipe(

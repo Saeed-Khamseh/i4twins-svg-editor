@@ -16,13 +16,23 @@ import { AppState } from '../../app.state';
       <button
         mat-icon-button
         type="button"
-        aria-label="Open SVG file"
+        aria-label="Import SVG"
         (click)="fileInput.click()"
       >
-        <mat-icon>upload_file</mat-icon>
+        <mat-icon>file_upload</mat-icon>
       </button>
 
-      <span class="toolbar-title">{{ document.documentTitle() }}</span>
+      <button
+        mat-icon-button
+        type="button"
+        aria-label="Export SVG"
+        [disabled]="!document.svgRoot()"
+        (click)="exportSvg()"
+      >
+        <mat-icon>file_download</mat-icon>
+      </button>
+
+      <span class="toolbar-title">Dana Tadbir HMI</span>
 
       <span class="toolbar-spacer"></span>
 
@@ -34,16 +44,6 @@ import { AppState } from '../../app.state';
         (click)="appState.setPreviewMode(!appState.previewMode())"
       >
         <mat-icon>{{ appState.previewMode() ? 'edit' : 'visibility' }}</mat-icon>
-      </button>
-
-      <button
-        mat-icon-button
-        type="button"
-        aria-label="Export SVG"
-        [disabled]="!document.svgRoot()"
-        (click)="exportSvg()"
-      >
-        <mat-icon>download</mat-icon>
       </button>
 
       <input

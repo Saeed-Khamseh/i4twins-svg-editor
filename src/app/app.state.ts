@@ -21,6 +21,7 @@ type AppStateModel = {
   selectedDevice: Device | null;
   previewMode: boolean;
   svgRoot: SVGSVGElement | null;
+  svgRevision: number;
   _statusMap: DeviceStatusMap;
 };
 
@@ -35,11 +36,13 @@ export const AppState = signalStore(
     selectedDevice: null,
     previewMode: false,
     svgRoot: null,
+    svgRevision: 0,
     _statusMap: {},
   }),
   withComputed((store) => ({
     referencedDeviceIds: computed(() => {
       const root = store.svgRoot();
+      void store.svgRevision();
       return root ? scanReferencedDeviceIds(root) : [];
     }),
     deviceStatuses: computed(() => store._statusMap()),
@@ -51,12 +54,17 @@ export const AppState = signalStore(
     clearDevice() {
       patchState(store, { selectedDevice: null });
     },
-    setSvg(root: SVGSVGElement | null) {
-      if (store.svgRoot() === root) {
+    setSvg(root: SVGSVGElement | null, revision = 0) {
+      const rootChanged = store.svgRoot() !== root;
+      if (!rootChanged && store.svgRevision() === revision) {
         return;
       }
 
-      patchState(store, { svgRoot: root, _statusMap: {} });
+      patchState(store, {
+        svgRoot: root,
+        svgRevision: revision,
+        ...(rootChanged ? { _statusMap: {} } : {}),
+      });
     },
     setPreviewMode(enabled: boolean) {
       patchState(store, {
