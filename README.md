@@ -75,6 +75,38 @@ The bundled assets (`public/data/devices.json`, `public/samples/plant.svg`) deli
 - **Two endpoints only**: search returns full device records (no separate detail route); status map is minimal for polling.
 - **`DeviceApiService`** is the sole HTTP client for device endpoints; **`DeviceSearch`** handles autocomplete with 300ms debounce and `switchMap` request cancellation.
 - **`shared/api-types.ts`** is the single contract shared between server and client.
+- **SVG editor is device-unaware.** Selection, attributes, pan/zoom, and export live in the diagram components and know nothing about devices or status. Highlight and preview colouring are applied from `app.ts` through a generic `setCssClass({ 'data-device-id': id }, classes)` hook — the canvas only matches attributes and toggles CSS classes.
+
+## Third-party libraries
+
+The stack is Angular plus a short list of libraries that already solve a well-defined problem. Nothing was added “just in case.”
+
+| Library | Why it is here |
+| --- | --- |
+| **Angular Material** (+ CDK) | Toolbar, snackbars, and device search autocomplete so the UI stays accessible without hand-rolling overlays. |
+| **NgRx Signals** | `AppState` (selected device, preview mode, SVG root, status polling) as a small signal store instead of ad-hoc services. |
+| **RxJS** | HTTP, search debounce/`switchMap` cancellation, and the 5 s status poll. Ships with Angular; used where streams are the right model. |
+| **[@panzoom/panzoom](https://github.com/timmywil/panzoom)** | Canvas pan (left-drag) and zoom (wheel). It applies a CSS transform on the host wrapper, so the SVG document — and export — stay untouched. Pinch-zoom comes with it; a homemade camera would have been easy to get wrong next to click-to-select and right-click insert text. |
+| **Express** | Tiny mock devices API so `devices.json` is served over HTTP, not bundled into the client. |
+| **tsx** / **concurrently** | Run the TypeScript server without a separate compile step, and start API + `ng serve` with one command. |
+
+## Wish to be added later
+
+Gaps worth closing when there is time:
+
+- E2E testing with Cypress
+- Ability to delete elements
+- Enhance highlight UX for device status
+- Undo / redo for document edits
+- Toolbar zoom controls (in / out / fit / reset)
+- Keyboard shortcuts beyond Escape to deselect
+- …
+
+## How this was written
+
+All of the application code was written by AI in [Cursor](https://cursor.com). Each step was reviewed before it landed — prompts, diffs, and behaviour on the canvas.
+
+Let's be honest: without that review it would be a vibe-coding mess.
 
 ## Build
 
