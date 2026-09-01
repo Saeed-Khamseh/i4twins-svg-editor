@@ -7,7 +7,7 @@
   >
     <mat-label>Search devices</mat-label>
 
-    @if (loading()) {
+    @if (results.isLoading()) {
       <mat-spinner matPrefix diameter="20" aria-label="Searching devices" />
     } @else {
       <mat-icon matPrefix aria-hidden="true">search</mat-icon>
@@ -27,6 +27,7 @@
       [attr.aria-expanded]="showRecents()"
       autocomplete="off"
       (focus)="onInputFocus()"
+      (click)="onInputFocus()"
       (blur)="onInputBlur()"
     />
 
@@ -47,16 +48,16 @@
       [displayWith]="displayDevice"
       (optionSelected)="onDeviceSelected($event.option.value)"
     >
-      @if (error()) {
+      @if (results.error()) {
         <mat-option disabled>
           <span class="device-search-message">Could not load devices. Try again.</span>
         </mat-option>
-      } @else if (!loading() && hasQuery() && results().length === 0) {
+      } @else if (results.status() === 'resolved' && results.value().length === 0) {
         <mat-option disabled>
           <span class="device-search-message">No devices found</span>
         </mat-option>
       } @else {
-        @for (device of results(); track device.id) {
+        @for (device of results.value(); track device.id) {
           <mat-option [value]="device">
             <span class="device-search-option">
               <span class="device-search-code">{{ device.code }}</span>

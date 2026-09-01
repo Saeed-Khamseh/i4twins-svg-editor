@@ -11,7 +11,7 @@ import {
   viewChild,
   ViewContainerRef,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { rxResource, takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Overlay, OverlayModule, OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -22,16 +22,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import {
-  catchError,
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  finalize,
-  map,
-  of,
-  switchMap,
-} from 'rxjs';
+import { debounceTime, distinctUntilChanged, map } from 'rxjs';
 
 import type { Device } from '../../../../shared/api-types';
 
@@ -60,27 +51,38 @@ export class DeviceSearch {
   protected readonly queryControl = new FormControl<string | Device>('', {
     nonNullable: true,
   });
-  protected readonly results = signal<Device[]>([]);
-  protected readonly loading = signal(false);
-  protected readonly error = signal(false);
   protected readonly queryText = signal('');
   protected readonly inputFocused = signal(false);
   protected readonly recents = signal<Device[]>([]);
 
-  protected readonly selectedDevice = inject(AppState).selectedDevice;
+  private readonly devices = inject(DeviceApiService);
+  private readonly appState = inject(AppState);
+  protected readonly selectedDevice = this.appState.selectedDevice;
+
+  private readonly searchQuery = toSignal(
+    toObservable(this.queryText).pipe(debounceTime(300), distinctUntilChanged()),
+    { initialValue: '' },
+  );
+
+  protected readonly results = rxResource({
+    params: () => {
+      const query = this.searchQuery();
+      if (query.length === 0 || this.selectedDevice() !== null) {
+        return undefined;
+      }
+
+      return query;
+    },
+    stream: ({ params }) => this.devices.search(params),
+    defaultValue: [] as Device[],
+  });
 
   protected readonly hasQuery = computed(() => this.queryText().length > 0);
 
   protected readonly showRecents = computed(
-    () =>
-      this.inputFocused() &&
-      !this.hasQuery() &&
-      this.selectedDevice() === null &&
-      this.recents().length > 0,
+    () => this.inputFocused() && !this.hasQuery() && this.recents().length > 0,
   );
 
-  private readonly devices = inject(DeviceApiService);
-  private readonly appState = inject(AppState);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly overlay = inject(Overlay);
@@ -101,39 +103,11 @@ export class DeviceSearch {
     this.queryControl.valueChanges
       .pipe(
         map((value) => this.toQueryText(value)),
-        map((query) => {
-          this.queryText.set(query);
-          this.error.set(false);
-
-          if (!query) {
-            this.results.set([]);
-            this.loading.set(false);
-          }
-
-          this.syncRecentsOverlay();
-          return query;
-        }),
-        debounceTime(300),
-        distinctUntilChanged(),
-        filter((query) => query.length > 0 && this.selectedDevice() === null),
-        switchMap((query) => {
-          this.loading.set(true);
-          return this.devices.search(query).pipe(
-            catchError(() => {
-              this.error.set(true);
-              return of([] as Device[]);
-            }),
-            finalize(() => this.loading.set(false)),
-          );
-        }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((devices) => {
-        if (this.selectedDevice() !== null) {
-          return;
-        }
-
-        this.results.set(devices);
+      .subscribe((query) => {
+        this.queryText.set(query);
+        this.syncRecentsOverlay();
       });
   }
 
@@ -174,8 +148,6 @@ export class DeviceSearch {
 
   protected selectRecent(device: Device): void {
     this.selectDevice(device);
-    this.inputFocused.set(false);
-    this.syncRecentsOverlay();
   }
 
   protected removeRecent(device: Device): void {
@@ -188,10 +160,7 @@ export class DeviceSearch {
 
   protected clearSelection(): void {
     this.appState.clearDevice();
-    this.results.set([]);
     this.queryText.set('');
-    this.error.set(false);
-    this.loading.set(false);
     this.queryControl.setValue('', { emitEvent: false });
     this.inputFocused.set(true);
     this.syncRecentsOverlay();
@@ -208,9 +177,7 @@ export class DeviceSearch {
     this.appState.selectDevice(device);
     this.queryControl.setValue(this.displayDevice(device), { emitEvent: false });
     this.queryText.set('');
-    this.results.set([]);
-    this.loading.set(false);
-    this.error.set(false);
+    this.inputFocused.set(false);
     this.syncRecentsOverlay();
   }
 
